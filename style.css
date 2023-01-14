@@ -1,0 +1,33 @@
+* {
+   box-sizing: border-box;
+   margin: 0;
+}
+body {
+   font-family: Arial, Helvetica, sans-serif;
+}
+#myDiv {
+   width: 500px;
+   height: 500px;
+   background-color: rgba(20, 20, 20, 0.664);
+}
+#myDiv span {
+   width: 50px;
+   height: 50px;
+   display: inline-block;
+   background-color: rgb(143, 143, 228);
+   text-align: center;
+   border: 1px solid black;
+   z-index: 1;
+}
+#myShips {
+   background-color: red;
+   width: 100px;
+   height: 100px;
+}
+#myShips .ship1 {
+   display: inline-block;
+   background-color: yellowgreen;
+   width: 49px;
+   height: 49px;
+   z-index: 9;
+}
