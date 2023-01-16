@@ -63,6 +63,7 @@ class GameBoard {
 }
 
 function createCell(x, y) {
+   const container = document.createElement("div");
    const cell = document.createElement("span");
    // cell.innerText = `[${x}, ${y}]`;
    cell.setAttribute("draggable", "true");
@@ -70,7 +71,9 @@ function createCell(x, y) {
    cell.addEventListener("dragenter", dragEnter);
    cell.addEventListener("dragleave", dragLeave);
    cell.addEventListener("drop", dragDrop);
-   myDiv.append(cell);
+   container.className = "container";
+   container.append(cell);
+   myDiv.append(container);
 }
 
 let myBoard = new GameBoard();

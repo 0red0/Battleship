@@ -6,28 +6,39 @@ body {
    font-family: Arial, Helvetica, sans-serif;
 }
 #myDiv {
-   width: 500px;
-   height: 500px;
-   background-color: rgba(20, 20, 20, 0.664);
+   width: 515px;
+   height: 510px;
+   background-color: #333;
+   align-content: start;
+   display: flex;
+   flex-wrap: wrap;
+   gap: 1px;
+}
+#myDiv .container {
+   /* display: inline-block; */
 }
 #myDiv span {
    width: 50px;
    height: 50px;
-   display: inline-block;
+   display: block;
    background-color: rgb(143, 143, 228);
    text-align: center;
    border: 1px solid black;
-   z-index: 1;
+   /* z-index: 1; */
 }
 #myShips {
    background-color: red;
    width: 100px;
    height: 100px;
+   margin-top: 20px;
 }
 #myShips .ship1 {
    display: inline-block;
    background-color: yellowgreen;
-   width: 49px;
-   height: 49px;
-   z-index: 9;
+   width: 39px;
+   height: 39px;
+   /* z-index: 9; */
+}
+#myShips .ship1 img {
+   max-width: 100%;
 }
