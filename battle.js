@@ -16,106 +16,186 @@
 // [ 9, 0 ], [ 9, 1 ], [ 9, 2 ], [ 9, 3 ], [ 9, 4 ], [ 9, 5 ], [ 9, 6 ], [ 9, 7 ], [ 9, 8 ], [ 9, 9 ]
 
 //DOM Calls
-const myDiv = document.getElementById("myDiv");
 const myShips = document.getElementById("myShips");
-const boat = document.querySelector(".ship1");
+const pcShips = document.getElementById("pcShips");
+const info = document.querySelector(".info");
+const battleInfo = document.querySelector(".info .battle-info");
+const report = document.querySelector(".status data");
+const attempts = document.querySelector(".attempts data");
 
-class Ship {
-   constructor(name, length) {
-      this.name = name;
-      this.length = length;
-      this.hitsTaken = 0;
-      this.sunk = false;
-   }
-   hit() {
-      return ++this.hitsTaken;
-   }
-   isSunk() {
-      if (this.hitsTaken === this.length) {
-         this.sunk = true;
-      }
-      return this.sunk;
-   }
-}
+let directions = ["horizontal", "vertical"];
+let wid = 10;
+let myArray = [];
+let pcArray = [];
 
-let theCarrier = new Ship("carrier", 5);
+let Carrier = 1;
+let Battleship = 1;
+let Cruiser = 1;
+let Submarine = 1;
+let Destroyer = 1;
 
-class GameBoard {
-   constructor() {
-      this.cells = 100;
-   }
-   size() {
-      let arr = [];
-      for (let i = 0; i < 10; i++) {
-         for (let j = 0; j < 10; j++) {
-            arr.push([i, j]);
-         }
-      }
-      return arr;
-   }
-   createBoard() {
-      //array of cells coordinates [0,0] to [9,9]
-      let cellsCoords = this.size();
-      cellsCoords.forEach((cell) => {
-         createCell(cell[0], cell[1]);
+const ships = [
+   {
+      name: "destroyer",
+      directions: [
+         [0, 1],
+         [0, wid],
+      ],
+   },
+   {
+      name: "submarine",
+      directions: [
+         [0, 1, 2],
+         [0, wid, wid * 2],
+      ],
+   },
+   {
+      name: "cruiser",
+      directions: [
+         [0, 1, 2],
+         [0, wid, wid * 2],
+      ],
+   },
+   {
+      name: "battleship",
+      directions: [
+         [0, 1, 2, 3],
+         [0, wid, wid * 2, wid * 3],
+      ],
+   },
+   {
+      name: "carrier",
+      directions: [
+         [0, 1, 2, 3, 4],
+         [0, wid, wid * 2, wid * 3, wid * 4],
+      ],
+   },
+];
+
+// Functions Calling
+
+createCells(myShips, myArray);
+ships.forEach((s) => generate(directions, s, myArray));
+
+createCells(pcShips, pcArray);
+ships.forEach((s) => generate(directions, s, pcArray));
+
+function generate(dir, ship, cells) {
+   let randomDir = Math.floor(Math.random() * 2); // 1 or 0
+   let mainDir = 1;
+   if (randomDir) mainDir = 10;
+   let shipDirArr = ship.directions[randomDir]; //arr of directions
+   let randomCell = Math.abs(
+      Math.floor(
+         Math.random() * cells.length - ship.directions[0].length * mainDir
+      )
+   );
+
+   const isTaken = shipDirArr.some((index) =>
+      cells[index + randomCell].classList.contains("taken")
+   );
+   const isOverboard = shipDirArr.some(
+      (index) => (index + randomCell) % 10 === 9
+   );
+   const isOverEdge = shipDirArr.some(
+      (index) => (index + randomCell) % 10 === 0
+   );
+
+   if (!isTaken && !isOverEdge && !isOverboard)
+      shipDirArr.forEach((index) => {
+         cells[index + randomCell].classList.add("taken", ship.name, "ship");
       });
+   else generate(dir, ship, cells);
+}
+
+function createCells(board, arr) {
+   for (let i = 0; i < 100; i++) {
+      const cell = document.createElement("span");
+      cell.dataset.order = i;
+      board.append(cell);
+
+      arr.push(cell);
    }
 }
 
-function createCell(x, y) {
-   const container = document.createElement("div");
-   const cell = document.createElement("span");
-   // cell.innerText = `[${x}, ${y}]`;
-   cell.setAttribute("draggable", "true");
-   cell.addEventListener("dragover", dragOver);
-   cell.addEventListener("dragenter", dragEnter);
-   cell.addEventListener("dragleave", dragLeave);
-   cell.addEventListener("drop", dragDrop);
-   container.className = "container";
-   container.append(cell);
-   myDiv.append(container);
-}
+pcShips.addEventListener("click", (e) => {
+   if (e.target.classList.contains("checked")) return;
 
-let myBoard = new GameBoard();
+   e.target.classList.add("checked");
+   pcArray.shift(e.target);
 
-myBoard.createBoard();
+   // console.log(e.target.classList);
+   // console.log(e.target.className);
 
-//Dragging Action
+   if (e.target.classList.contains("ship")) {
+      e.target.classList.add("dest");
+      e.target.classList.remove("taken");
+   }
 
-let currTile;
-let otherTile;
+   let shipsNames = ships.map((x) => x.name);
+   if (shipsNames.includes(e.target.classList[0])) {
+      console.log(e.target.classList[0]);
+      e.target.classList.remove(e.target.classList[0]);
+   }
 
-boat.addEventListener("dragstart", dragStart);
-boat.addEventListener("dragend", dragEnd);
+   let allDestroyed = pcArray.some((el) => el.classList.contains("taken"));
+   if (!allDestroyed) {
+      report.innerText = "VICTORY. pc ships Destroyed"; //win condition
+      attempts.innerText = 100 - pcArray.length;
+      // pcShips.setAttribute("disabled");
+   }
 
-function dragStart() {
-   currTile = this;
-}
-function dragOver(e) {
-   e.preventDefault();
-}
-function dragEnter(e) {
-   e.preventDefault();
-}
-function dragLeave() {}
-function dragDrop() {
-   otherTile = this;
-}
-function dragEnd() {
-   // otherTile.innerText = "";
-   otherTile.append(currTile);
-   // cell.innerText = "";
-   // let currImg = currTile;
-   // let otherImg = otherTile;
-   // currTile = otherImg;
-   // otherTile = currImg;
-}
+   //check if Destroyer is sunk
+   let destroyerAlive = pcArray.some((l) => l.classList.contains("destroyer"));
+   if (!destroyerAlive) ++Destroyer;
+   if (Destroyer == 2) {
+      let txt4 = document.createTextNode("Destroyer Sunk !");
+      let p4 = document.createElement("p");
+      p4.appendChild(txt4);
+      battleInfo.append(p4);
+   }
 
-// function dragonThis(thing) {
-//    thing.addEventListener("dragstart", dragStart);
-//    thing.addEventListener("dragover", dragOver);
-//    thing.addEventListener("dragenter", dragEnter);
-//    thing.addEventListener("dragleave", dragLeave);
-//    thing.addEventListener("drop", dragDrop);
-//    thing.addEventListener("dragend", dragEnd);
-// }
+   //check if Cruiser is sunk
+   let cruiserAlive = pcArray.some((el) => el.classList.contains("cruiser"));
+   if (!cruiserAlive) ++Cruiser;
+   if (Cruiser == 2) {
+      let txt5 = document.createTextNode("Cruiser Sunk !");
+      let p5 = document.createElement("p");
+      p5.appendChild(txt5);
+      battleInfo.append(p5);
+   }
+
+   //check if Carrier is sunk
+   let carrierAlive = pcArray.some((el) => el.classList.contains("carrier"));
+   if (!carrierAlive) ++Carrier;
+   if (Carrier == 2) {
+      let txt1 = document.createTextNode("Carrier Sunk !");
+      let p1 = document.createElement("p");
+      p1.appendChild(txt1);
+      battleInfo.append(p1);
+   }
+
+   //check if Battleship is sunk
+   let battleshipAlive = pcArray.some((l) =>
+      l.classList.contains("battleship")
+   );
+   if (!battleshipAlive) ++Battleship;
+   if (Battleship == 2) {
+      let txt2 = document.createTextNode("Battleship Sunk !");
+      let p2 = document.createElement("p");
+      p2.appendChild(txt2);
+      battleInfo.append(p2);
+   }
+
+   //check if Submarine is sunk
+   let submarineAlive = pcArray.some((l) => l.classList.contains("submarine"));
+   if (!submarineAlive) ++Submarine;
+   if (Submarine == 2) {
+      let txt3 = document.createTextNode("Submarine Sunk !");
+      let p3 = document.createElement("p");
+      p3.appendChild(txt3);
+      battleInfo.append(p3);
+   }
+
+   console.log("enemy div");
+});
