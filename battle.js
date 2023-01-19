@@ -18,21 +18,43 @@
 //DOM Calls
 const myShips = document.getElementById("myShips");
 const pcShips = document.getElementById("pcShips");
-const info = document.querySelector(".info");
-const battleInfo = document.querySelector(".info .battle-info");
-const report = document.querySelector(".status data");
-const attempts = document.querySelector(".attempts data");
+const pcShipsAfter = document.querySelector(".pcShipsAfter");
+const pcStatus = document.querySelector(".pc-status");
+const pcAttempts = document.querySelector(".pc-attempts");
+const pcShots = document.querySelector(".pc-shots");
+const pcDest = document.querySelector(".pc-destroyed");
+const playerStatus = document.querySelector(".player-status");
+const playerAttempts = document.querySelector(".player-attempts");
+const playerShots = document.querySelector(".player-shots");
+const playerDest = document.querySelector(".player-destroyed");
+const btn = document.querySelector("button");
 
 let directions = ["horizontal", "vertical"];
 let wid = 10;
 let myArray = [];
 let pcArray = [];
 
-let Carrier = 1;
-let Battleship = 1;
-let Cruiser = 1;
-let Submarine = 1;
-let Destroyer = 1;
+//Numbers of ships on the board
+let Carrier = {
+   player: 1,
+   pc: 1,
+};
+let Battleship = {
+   player: 1,
+   pc: 1,
+};
+let Cruiser = {
+   player: 1,
+   pc: 1,
+};
+let Submarine = {
+   player: 1,
+   pc: 1,
+};
+let Destroyer = {
+   player: 1,
+   pc: 1,
+};
 
 const ships = [
    {
@@ -118,84 +140,132 @@ function createCells(board, arr) {
    }
 }
 
+//Player turn
+
 pcShips.addEventListener("click", (e) => {
    if (e.target.classList.contains("checked")) return;
 
    e.target.classList.add("checked");
-   pcArray.shift(e.target);
-
-   // console.log(e.target.classList);
-   // console.log(e.target.className);
 
    if (e.target.classList.contains("ship")) {
       e.target.classList.add("dest");
       e.target.classList.remove("taken");
+      pcShots.innerText = "Hit";
+   } else {
+      pcShots.innerText = "Miss";
    }
 
    let shipsNames = ships.map((x) => x.name);
    if (shipsNames.includes(e.target.classList[0])) {
-      console.log(e.target.classList[0]);
-      e.target.classList.remove(e.target.classList[0]);
+      e.target.classList.remove(e.target.classList[0]); //remove shipName
    }
 
    let allDestroyed = pcArray.some((el) => el.classList.contains("taken"));
    if (!allDestroyed) {
-      report.innerText = "VICTORY. pc ships Destroyed"; //win condition
-      attempts.innerText = 100 - pcArray.length;
-      // pcShips.setAttribute("disabled");
+      playerStatus.innerText = "VICTORY. PC ships Destroyed"; //win condition
+      pcStatus.innerText = "DEFEAT~!. PC ships Destroyed"; //win condition
+      let tmp = pcArray.filter((x) => x.classList.contains("checked"));
+      pcAttempts.innerText = `Attempts = ${tmp.length}`;
    }
 
+   destroyedShips(pcArray, pcDest, "pc");
+
+   pcShipsAfter.style.display = "block";
+
+   setTimeout(() => {
+      pcTurn();
+      pcShipsAfter.style.display = "none";
+   }, 500);
+});
+
+//pc turn
+
+function pcTurn() {
+   let randomHit = myArray[Math.floor(Math.random() * 99)];
+
+   if (randomHit.classList.contains("checked")) pcTurn();
+
+   randomHit.classList.add("checked");
+
+   if (randomHit.classList.contains("ship")) {
+      randomHit.classList.add("dest");
+      randomHit.classList.remove("taken");
+      playerShots.innerText = "Hit";
+   } else {
+      playerShots.innerText = "Miss";
+   }
+
+   let shipsNames = ships.map((x) => x.name);
+   if (shipsNames.includes(randomHit.classList[0])) {
+      randomHit.classList.remove(randomHit.classList[0]); //remove shipName
+   }
+
+   let allDestroyed = myArray.some((el) => el.classList.contains("taken"));
+   if (!allDestroyed) {
+      playerStatus.innerText = "DEFEAT~!. Your ships Destroyed"; //Loss condition
+      pcStatus.innerText = "Victory. your ships Destroyed"; //Loss condition
+
+      let tmpArr = myArray.filter((x) => x.classList.contains("checked"));
+      playerAttempts.innerText = `Attempts = ${tmpArr.length}`;
+   }
+
+   destroyedShips(myArray, playerDest, "player");
+}
+
+function destroyedShips(arr, dest, turn) {
    //check if Destroyer is sunk
-   let destroyerAlive = pcArray.some((l) => l.classList.contains("destroyer"));
-   if (!destroyerAlive) ++Destroyer;
-   if (Destroyer == 2) {
+   let destroyerAlive = arr.some((l) => l.classList.contains("destroyer"));
+   if (!destroyerAlive) Destroyer[turn] = Destroyer[turn] + 1 || 1;
+   if (Destroyer[turn] == 2) {
       let txt4 = document.createTextNode("Destroyer Sunk !");
       let p4 = document.createElement("p");
       p4.appendChild(txt4);
-      battleInfo.append(p4);
+      dest.append(p4);
    }
 
    //check if Cruiser is sunk
-   let cruiserAlive = pcArray.some((el) => el.classList.contains("cruiser"));
-   if (!cruiserAlive) ++Cruiser;
-   if (Cruiser == 2) {
+   let cruiserAlive = arr.some((el) => el.classList.contains("cruiser"));
+   if (!cruiserAlive) Cruiser[turn] = Cruiser[turn] + 1 || 1;
+   if (Cruiser[turn] == 2) {
       let txt5 = document.createTextNode("Cruiser Sunk !");
       let p5 = document.createElement("p");
       p5.appendChild(txt5);
-      battleInfo.append(p5);
+      dest.append(p5);
    }
 
    //check if Carrier is sunk
-   let carrierAlive = pcArray.some((el) => el.classList.contains("carrier"));
-   if (!carrierAlive) ++Carrier;
-   if (Carrier == 2) {
+   let carrierAlive = arr.some((el) => el.classList.contains("carrier"));
+   if (!carrierAlive) Carrier[turn] = Carrier[turn] + 1 || 1;
+   if (Carrier[turn] == 2) {
       let txt1 = document.createTextNode("Carrier Sunk !");
       let p1 = document.createElement("p");
       p1.appendChild(txt1);
-      battleInfo.append(p1);
+      dest.append(p1);
    }
 
    //check if Battleship is sunk
-   let battleshipAlive = pcArray.some((l) =>
-      l.classList.contains("battleship")
-   );
-   if (!battleshipAlive) ++Battleship;
-   if (Battleship == 2) {
+   let battleshipAlive = arr.some((l) => l.classList.contains("battleship"));
+   if (!battleshipAlive) Battleship[turn] = Battleship[turn] + 1 || 1;
+   if (Battleship[turn] == 2) {
       let txt2 = document.createTextNode("Battleship Sunk !");
       let p2 = document.createElement("p");
       p2.appendChild(txt2);
-      battleInfo.append(p2);
+      dest.append(p2);
    }
 
    //check if Submarine is sunk
-   let submarineAlive = pcArray.some((l) => l.classList.contains("submarine"));
-   if (!submarineAlive) ++Submarine;
-   if (Submarine == 2) {
+   let submarineAlive = arr.some((l) => l.classList.contains("submarine"));
+   if (!submarineAlive) Submarine[turn] = Submarine[turn] + 1 || 1;
+   if (Submarine[turn] == 2) {
       let txt3 = document.createTextNode("Submarine Sunk !");
       let p3 = document.createElement("p");
       p3.appendChild(txt3);
-      battleInfo.append(p3);
+      dest.append(p3);
    }
+}
 
-   console.log("enemy div");
+btn.addEventListener("click", () => {
+   let tmpo = pcArray.filter((x) => x.classList.contains("ship"));
+   tmpo.forEach((s) => s.classList.toggle("show"));
+   console.log("btn");
 });

@@ -6,19 +6,54 @@
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Battleship</title>
-   <link rel="stylesheet" href="style.css">
+   <link rel="stylesheet" href="styles.css">
    <script src="battle.js" defer></script>
 </head>
 
 <body>
-   <div id="myShips"></div>
-   <div class="pc-box">
-      <div id="pcShips"></div>
-      <div class="info">
-         <div class="status">Your Status: <data></data></div>
-         <div class="status attempts">Attempts: <data></data></div>
-         <div class="battle-info"></div>
+
+   <div class="title">
+      <img src="title.png" alt="title logo">
+   </div>
+
+
+   <div class="bg-img">
+      <button>Show Enemy</button>
+
+      <div class="boards">
+
+         <div class="box">
+
+            <div class="info">
+               <h3>Your Board >></h3>
+               <p class="player-status"></p>
+               <p class="player-attempts"></p>
+               <p class="player-shots"></p>
+               <p class="player-destroyed"></p>
+            </div>
+
+            <div id="myShips"></div>
+         </div>
+
+         <div class="box">
+
+            <div id="pcShips">
+               <div class="pcShipsAfter"></div>
+            </div>
+
+            <div class="info">
+               <h3>
+                  << PC Board</h3>
+                     <p class="pc-status"></p>
+                     <p class="pc-attempts"></p>
+                     <p class="pc-shots"></p>
+                     <p class="pc-destroyed"></p>
+            </div>
+
+         </div>
       </div>
+
+
    </div>
 </body>
 
